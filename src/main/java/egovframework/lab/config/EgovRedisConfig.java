@@ -2,6 +2,9 @@ package egovframework.lab.config;
 
 import egovframework.lab.entity.Ids;
 import egovframework.lab.entity.Sample;
+import io.lettuce.core.SocketOptions;
+import io.lettuce.core.cluster.ClusterClientOptions;
+import io.lettuce.core.cluster.ClusterTopologyRefreshOptions;
 import org.egovframe.rte.psl.reactive.redis.connect.EgovRedisConfiguration;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -9,12 +12,17 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.data.redis.connection.ReactiveRedisConnectionFactory;
 import org.springframework.data.redis.connection.RedisClusterConfiguration;
+import org.springframework.data.redis.connection.RedisNode;
+import org.springframework.data.redis.connection.lettuce.LettuceClientConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
+import java.time.Duration;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 @Configuration
 @PropertySource("classpath:application.yml")
@@ -38,14 +46,49 @@ public class EgovRedisConfig {
 
         // 3. redis cluster 모드
         System.out.println("nodes = " + nodes);
-        RedisClusterConfiguration clusterConfiguration = new RedisClusterConfiguration(
-                Arrays.asList(
-                        nodes
-                )
-        );
+//        RedisClusterConfiguration clusterConfiguration = new RedisClusterConfiguration(
+//                Arrays.asList(nodes)
+//        );
+//        clusterConfiguration.setPassword(password);
+
+        // (1) Redis Cluster 설정
+        int maxRedirects = 3;
+        List<RedisNode> redisNodes = new ArrayList<>();
+        redisNodes.add(new RedisNode("redis-cluster-0.redis-cluster.redis.svc.cluster.local", 6379));
+        redisNodes.add(new RedisNode("redis-cluster-1.redis-cluster.redis.svc.cluster.local", 6379));
+        redisNodes.add(new RedisNode("redis-cluster-2.redis-cluster.redis.svc.cluster.local", 6379));
+
+        RedisClusterConfiguration clusterConfiguration = new RedisClusterConfiguration();
+        clusterConfiguration.setClusterNodes(redisNodes);
+        clusterConfiguration.setMaxRedirects(maxRedirects);
         clusterConfiguration.setPassword(password);
 
-        return new LettuceConnectionFactory(clusterConfiguration);
+        // (2) Socket 옵션
+        SocketOptions socketOptions = SocketOptions.builder()
+                .connectTimeout(Duration.ofMillis(100L))
+                .keepAlive(true)
+                .build();
+
+        // (3) Cluster topology refresh 옵션
+        ClusterTopologyRefreshOptions clusterTopologyRefreshOptions = ClusterTopologyRefreshOptions.builder()
+                .dynamicRefreshSources(true)
+                .enableAdaptiveRefreshTrigger()
+                .enablePeriodicRefresh(Duration.ofMinutes(30L))
+                .build();
+
+        // (4) Cluster Client 옵션
+        ClusterClientOptions clientOptions = ClusterClientOptions.builder()
+                .topologyRefreshOptions(clusterTopologyRefreshOptions)
+                .socketOptions(socketOptions)
+                .build();
+
+        // (5) Lettuce Client 옵션
+        LettuceClientConfiguration clientConfiguration = LettuceClientConfiguration.builder()
+                .clientOptions(clientOptions)
+                .commandTimeout(Duration.ofMillis(3000L))
+                .build();
+
+        return new LettuceConnectionFactory(clusterConfiguration, clientConfiguration);
     }
 
     @Bean(name="idsSerializationContext")
