@@ -54,9 +54,9 @@ public class EgovRedisConfig {
         // (1) Redis Cluster 설정
         int maxRedirects = 3;
         List<RedisNode> redisNodes = new ArrayList<>();
-        redisNodes.add(new RedisNode("redis-cluster-0.redis-cluster.redis.svc.cluster.local", 6379));
-        redisNodes.add(new RedisNode("redis-cluster-1.redis-cluster.redis.svc.cluster.local", 6379));
-        redisNodes.add(new RedisNode("redis-cluster-2.redis-cluster.redis.svc.cluster.local", 6379));
+        redisNodes.add(new RedisNode("redis-cluster-0.redis-cluster-headless.redis.svc.cluster.local", 6379));
+        redisNodes.add(new RedisNode("redis-cluster-1.redis-cluster-headless.redis.svc.cluster.local", 6379));
+        redisNodes.add(new RedisNode("redis-cluster-2.redis-cluster-headless.redis.svc.cluster.local", 6379));
 
         RedisClusterConfiguration clusterConfiguration = new RedisClusterConfiguration();
         clusterConfiguration.setClusterNodes(redisNodes);
