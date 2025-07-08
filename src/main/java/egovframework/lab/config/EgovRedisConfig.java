@@ -25,7 +25,9 @@ public class EgovRedisConfig {
 
 //    @Value("${spring.redis.port}")
     private int port = 6379;
-    private String nodes = "redis-cluster-0:6379, redis-cluster-1:6379, redis-cluster-2:6379, redis-cluster-3:6379, redis-cluster-4:6379";
+    private String nodes = "redis-cluster-0.redis-cluster.redis.svc.cluster.local:6379, " +
+            "redis-cluster-1.redis-cluster.redis.svc.cluster.local:6379, " +
+            "redis-cluster-2.redis-cluster.redis.svc.cluster.local:6379";
     private String password = "redis@kra";
 
     @Bean(name="reactiveRedisConnectionFactory")
