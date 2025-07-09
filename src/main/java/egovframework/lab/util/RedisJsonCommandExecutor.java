@@ -20,7 +20,7 @@ public class RedisJsonCommandExecutor {
 
     public String jsonGet(String key, String path) {
         return redis.dispatch(
-                CommandType.valueOf("JSON.GET"),
+                CommandTypeEx.valueOf("JSON_GET"),
                 new ValueOutput<>(StringCodec.UTF8),
                 new CommandArgs<>(StringCodec.UTF8)
                         .add(key)
@@ -30,7 +30,7 @@ public class RedisJsonCommandExecutor {
 
     public String jsonSet(String key, String path, String jsonValue) {
         return redis.dispatch(
-                CommandType.valueOf("JSON.SET"),
+                CommandTypeEx.valueOf("JSON_SET"),
                 new StatusOutput<>(StringCodec.UTF8),
                 new CommandArgs<>(StringCodec.UTF8)
                         .add(key)
