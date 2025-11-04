@@ -9,3 +9,44 @@ spring:
         port: 6379
         nodes: "redis-cluster-0:6379, redis-cluster-1:6379, redis-cluster-2:6379, redis-cluster-3:6379, redis-cluster-4:6379"
         password: redis@kra
+
+resilience4j.circuitbreaker:
+    instances:
+        legacySystemService:
+            registerHealthIndicator: true
+            slidingWindowSize: 10
+            minimumNumberOfCalls: 5
+            permittedNumberOfCallsInHalfOpenState: 3
+            automaticTransitionFromOpenToHalfOpenEnabled: true
+            waitDurationInOpenState: 30s
+            failureRateThreshold: 50
+            slowCallRateThreshold: 100
+            slowCallDurationThreshold: 600ms
+            recordExceptions:
+                - org.springframework.web.client.HttpServerErrorException
+                - java.net.SocketTimeoutException
+                - java.io.IOException
+            ignoreExceptions:
+                - com.example.BusinessValidationException
+
+resilience4j.retry:
+    instances:
+        legacySystemService:
+            maxAttempts: 3
+            waitDuration: 500ms
+            enableExponentialBackoff: true
+            exponentialBackoffMultiplier: 2
+
+resilience4j.timelimiter:
+    instances:
+        legacySystemService:
+            timeoutDuration: 3s
+
+management:
+    endpoints:
+        web:
+            exposure:
+                include: health, metrics, circuitbreakers
+    endpoint:
+        health:
+            show-details: always
