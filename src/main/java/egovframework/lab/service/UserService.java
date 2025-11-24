@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class UserService {
     private final ApiService<GetUserDto> apiService;
-    private final static String SERVER = "http://localhost:3100";
+    private final static String SERVER = "http://localhost:3000";
 
     public GetUserDto getUsers() {
         String url = SERVER +  "/users/";

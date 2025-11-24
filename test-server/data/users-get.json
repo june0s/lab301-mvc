@@ -1,8 +1,5 @@
 {
-  "tr_result": "0",
-  "tr_message": "success",
-  "data": {
-    "id": 5,
-    "name": "june0"
-  }
+  "name": "june0",
+  "age": 23,
+  "address": "pankyo"
 }
