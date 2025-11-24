@@ -12,7 +12,9 @@ app.use(bodyParser.json())
 app.get('/users', function(req, res, next) {
   console.log(`recv ${req.method} ${req.url} port = ${req.secure ? HTTPS_PORT : HTTP_PORT}`)
   const data = JSON.parse(fs.readFileSync("./data/users-get.json", "utf8"));
-  res.json(data);
+  res.status(200).json(data);
+  // res.status(400).json(data);
+  // res.status(500).json(data);
 })
 
 app.post('/users', function(req, res, next) {

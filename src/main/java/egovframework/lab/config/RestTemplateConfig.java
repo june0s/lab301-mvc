@@ -7,13 +7,17 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.BufferingClientHttpRequestFactory;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
+import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.web.client.ResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Configuration
@@ -24,6 +28,9 @@ public class RestTemplateConfig {
         RestTemplate restTemplate = new RestTemplate();
 
         restTemplate.setRequestFactory(clientHttpRequestFactory());
+        restTemplate.setErrorHandler(new CustomResponseErrorHandler());
+//        restTemplate.setMessageConverters((List<HttpMessageConverter<?>>) new StringHttpMessageConverter(Charset.forName("UTF-8")));
+
         return restTemplate;
     }
 
@@ -31,6 +38,7 @@ public class RestTemplateConfig {
         SimpleClientHttpRequestFactory simple = new SimpleClientHttpRequestFactory();
         simple.setConnectTimeout(5000);
         simple.setReadTimeout(15000);
+
         BufferingClientHttpRequestFactory factory = new BufferingClientHttpRequestFactory(simple);
 
         return factory;
